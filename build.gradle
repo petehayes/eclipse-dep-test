@@ -2,20 +2,21 @@ subprojects {
 	apply plugin: 'java'
 
     repositories {
-        mavenCentral()
+    	mavenLocal()
+		maven { url = 'https://meshbincam.pega.com/artifactory/repo' }
     }
 
 }
 
 project(':a') {
 	dependencies {
-		compile 'log4j:log4j:1.2.15'
+		compile 'log4j:log4j:1.2.17'
 	}
 }
 
 project(':b') {
 	dependencies {
-		compile 'log4j:log4j:1.2.14'
+		compile 'log4j:log4j:1.2.16'
 	}
 }
 
@@ -23,5 +24,6 @@ project(':c') {
 	dependencies {
 		compile project(':a')
 		compile project(':b')
+		testCompile 'junit:junit:4.12'
 	}
 }
