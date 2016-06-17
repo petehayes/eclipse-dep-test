@@ -1,0 +1,27 @@
+subprojects {
+	apply plugin: 'java'
+
+    repositories {
+        mavenCentral()
+    }
+
+}
+
+project(':a') {
+	dependencies {
+		compile 'log4j:log4j:1.2.15'
+	}
+}
+
+project(':b') {
+	dependencies {
+		compile 'log4j:log4j:1.2.14'
+	}
+}
+
+project(':c') {
+	dependencies {
+		compile project(':a')
+		compile project(':b')
+	}
+}

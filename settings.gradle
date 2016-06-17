@@ -1,0 +1,5 @@
+rootProject.name= 'eclipse-dep-test'
+
+include "a"
+include "b"
+include "c"
