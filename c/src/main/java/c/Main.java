@@ -16,7 +16,7 @@ public class Main {
 
         for(URL url: urls){
         	String s = url.getFile();
-        	System.out.println(s.substring(s.lastIndexOf("/") + 1));
+        	System.out.println(s);
         }
 	}
 }
