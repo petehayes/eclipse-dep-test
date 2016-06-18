@@ -3,7 +3,7 @@ subprojects {
 
     repositories {
     	mavenLocal()
-		maven { url = 'https://meshbincam.pega.com/artifactory/repo' }
+        mavenCentral()
     }
 
 }
