@@ -69,6 +69,7 @@ project(':c') {
 		classpath {
 			file {
 				whenMerged {
+					entries.each { println it }
 					entries.findAll{ it instanceof ProjectDependency }.each {
 						it.accessRules.add(new AccessRule('1', '**/impl/**')) 
 					}
