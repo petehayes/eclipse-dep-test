@@ -3,10 +3,7 @@ package c;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import org.apache.log4j.Logger;
-
 public class Main {
-	private Logger logger;
 	
 	public static void main(String[] args) {
 
@@ -18,5 +15,7 @@ public class Main {
         	String s = url.getFile();
         	System.out.println(s);
         }
+        
+        a.impl.Denied denied;
 	}
 }

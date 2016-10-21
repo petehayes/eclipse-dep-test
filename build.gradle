@@ -1,16 +1,44 @@
+import org.gradle.plugins.ide.eclipse.model.AccessRule
+import org.gradle.plugins.ide.eclipse.model.ProjectDependency
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.bmuschko:gradle-cargo-plugin:2.2.3'
+    }
+}
+
+plugins {
+	id 'org.ajoberstar.grgit' version '1.5.1'
+}
+
+// If the branch name matches 'release/#.#.#' then releaseVersion=#.#.#
+def group = (grgit.branch.current.name =~ /release[\/](([0-9]+[.]*)+)/)
+
+def releaseVersion = group.size() > 0 ? group[0][1] : grgit.branch.current.name.replace('/', '-')
+
+version = "${releaseVersion}-SNAPSHOT"
+
 subprojects {
 	apply plugin: 'java'
 
     repositories {
     	mavenLocal()
         mavenCentral()
+        jcenter()
     }
 
 }
 
 project(':a') {
+	apply plugin: 'eclipse'
+	
 	dependencies {
 		compile 'log4j:log4j:1.2.17'
+		testCompile 'info.cukes:cucumber-java:1.2.4'
 	}
 }
 
@@ -21,9 +49,66 @@ project(':b') {
 }
 
 project(':c') {
+	apply plugin: 'war'
+	apply plugin: 'com.bmuschko.cargo'
+	apply plugin: 'eclipse'
+	
 	dependencies {
 		compile project(':a')
 		compile project(':b')
 		testCompile 'junit:junit:4.12'
+    	providedCompile 'javax.servlet:servlet-api:2.5'
+    	testRuntime 'com.google.guava:guava:20.0-rc1'
+		
+   		def cargoVersion = '1.5.0'
+   		cargo "org.codehaus.cargo:cargo-core-uberjar:${cargoVersion}",
+          	"org.codehaus.cargo:cargo-ant:${cargoVersion}"
 	}
+	
+	eclipse {
+		classpath {
+			file {
+				whenMerged {
+					entries.findAll{ it instanceof ProjectDependency }.each {
+						it.accessRules.add(new AccessRule('1', '**/impl/**')) 
+					}
+				}
+			}
+		}
+	}
+	
+	def tomcatDownloadUrl = 'http://mirror.olnevhost.net/pub/apache/tomcat/tomcat-7/v7.0.70/bin/apache-tomcat-7.0.70.zip'
+	def cargoHome = "$buildDir/cargo"
+	
+	cargo {  
+	  containerId = 'tomcat7x'
+	
+	  local {
+	    homeDir = file(cargoHome)  
+    	configHomeDir = file(cargoHome)
+    	  
+	    installer {  
+	      installUrl = tomcatDownloadUrl  
+	      downloadDir = file("$buildDir/download")  
+	      extractDir = file("$buildDir/extract")  
+	    }  
+	
+	    containerProperties {  
+	      property 'cargo.servlet.port', '8080'
+	      property 'cargo.tomcat.ajp.port', '8090'
+	      property 'cargo.rmi.port', '8091'
+	    }  
+	  }  
+	}
+	
+	task createCargoHome() {  
+	  doLast {  
+	    if (!file(cargoHome).exists() && !file(cargoHome).mkdirs()) {  
+	      println "Failed to create directory '${cargoHome}'"  
+	    }  
+	  }  
+	}
+	
+	cargoStartLocal.dependsOn createCargoHome
+	cargoStartLocal.dependsOn assemble
 }
